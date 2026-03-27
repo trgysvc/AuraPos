@@ -1,0 +1,132 @@
+// src/aurapos/auth/model/AuthModel.ts
+export class AuthModel {
+    private _isAuthenticated: boolean;
+    private _username: string;
+
+    constructor() {
+        this._isAuthenticated = false;
+        this._username = "";
+    }
+
+    get isAuthenticated(): boolean {
+        return this._isAuthenticated;
+    }
+
+    get username(): string {
+        return this._username;
+    }
+
+    private setAuthenticated(value: boolean): void {
+        this._isAuthenticated = value;
+    }
+
+    private setUsername(value: string): void {
+        this._username = value;
+    }
+}
+
+// src/aurapos/auth/service/AuthService.ts
+import { createClient } from '@supabase/supabase-js';
+import { AuthModel } from '../model/AuthModel';
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export class AuthService {
+    private authModel: AuthModel;
+
+    constructor() {
+        this.authModel = new AuthModel();
+    }
+
+    async login(email: string, password: string): Promise<boolean> {
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                if (error.message.includes('Invalid login credentials')) {
+                    throw new Error('Invalid email or password');
+                }
+                throw new Error('Authentication failed. Please try again.');
+            }
+
+            if (data.user) {
+                this.authModel.setAuthenticated(true);
+                this.authModel.setUsername(email);
+                return true;
+            }
+
+            return false;
+        } catch (error) {
+            console.error('Login error:', error);
+            if (error instanceof Error) {
+                throw error;
+            }
+            throw new Error('An unexpected error occurred during login');
+        }
+    }
+
+    async logout(): Promise<boolean> {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            this.authModel.setAuthenticated(false);
+            this.authModel.setUsername("");
+            return true;
+        } catch (error) {
+            console.error('Logout error:', error);
+            throw new Error('Logout failed. Please try again.');
+        }
+    }
+
+    get authModel(): AuthModel {
+        return this.authModel;
+    }
+}
+
+// src/aurapos/auth/controller/AuthController.ts
+import { AuthService } from '../service/AuthService';
+
+export class AuthController {
+    private authService: AuthService;
+
+    constructor() {
+        this.authService = new AuthService();
+    }
+
+    async attemptLogin(email: string, password: string): Promise<boolean> {
+        try {
+            return await this.authService.login(email, password);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error;
+            }
+            throw new Error('Login failed. Please try again.');
+        }
+    }
+
+    async performLogout(): Promise<boolean> {
+        try {
+            return await this.authService.logout();
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error;
+            }
+            throw new Error('Logout failed. Please try again.');
+        }
+    }
+
+    get isAuthenticated(): boolean {
+        return this.authService.authModel.isAuthenticated;
+    }
+
+    get username(): string {
+        return this.authService.authModel.username;
+    }
+}
