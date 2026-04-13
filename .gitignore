@@ -1,1 +1,8 @@
-.env\.env.local\nnode_modules\n.next\ndist
+cat > ~/AuraPOS/.gitignore << 'EOF'
+.env
+.env.local
+node_modules
+.next
+dist
+*.db
+EOF
