@@ -1,0 +1,11 @@
+packages:
+  - 'apps/pos'
+  - 'apps/dashboard'
+  - 'apps/kds'
+  - 'apps/waiter-app'
+  - 'apps/branch-server'
+  - 'packages/shared-types'
+  - 'packages/hardware'
+  - 'packages/ui'
+  - 'packages/electric-config'
+  - 'packages/ai'

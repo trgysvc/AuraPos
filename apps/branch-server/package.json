@@ -1,0 +1,1 @@
+{"name":"branch-server","version":"1.0.0","type":"module","scripts":{"dev":"tsup dev","build":"tsup build"},"dependencies":{"@aura/shared-types":"workspace:*"}}

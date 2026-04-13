@@ -1,0 +1,1 @@
+{"name":"@aura/hardware","version":"1.0.0","type":"module","scripts":{"build":"tsc"},"dependencies":{"@aura/shared-types":"workspace:*"}}

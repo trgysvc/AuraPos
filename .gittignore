@@ -1,0 +1,2 @@
+echo ".env.local" >> ~/AuraPOS/.gitignore
+echo ".env" >> ~/AuraPOS/.gitignore
